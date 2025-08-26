@@ -1,0 +1,25 @@
+# Include all data files
+include README.md
+include LICENSE
+include requirements.txt
+include requirements-dev.txt
+
+# Include all JSON data files
+recursive-include cosmicexcuse/data *.json
+
+# Include documentation
+recursive-include docs *.md *.rst *.txt
+
+# Include tests
+recursive-include tests *.py
+
+# Include examples
+recursive-include examples *.py
+
+# Exclude compiled files
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude __pycache__
+global-exclude .DS_Store
+global-exclude .git
+global-exclude .gitignore
