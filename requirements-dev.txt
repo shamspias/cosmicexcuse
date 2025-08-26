@@ -1,0 +1,10 @@
+pytest
+pytest-cov
+black
+flake8
+mypy
+sphinx
+sphinx-rtd-theme
+twine
+wheel
+setuptools
