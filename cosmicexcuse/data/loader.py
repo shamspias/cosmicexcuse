@@ -15,7 +15,7 @@ class DataLoader:
     Loads excuse data from JSON files.
     """
 
-    def __init__(self, language: str = 'en', data_path: Optional[Path] = None):
+    def __init__(self, language: str = "en", data_path: Optional[Path] = None):
         """
         Initialize data loader.
 
@@ -56,12 +56,12 @@ class DataLoader:
             return {}
 
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
 
             # Extract the excuses list if it exists
-            if 'excuses' in data:
-                return data['excuses']
+            if "excuses" in data:
+                return data["excuses"]
             return data
 
         except json.JSONDecodeError as e:
@@ -77,14 +77,14 @@ class DataLoader:
             Dictionary mapping category names to lists of excuses
         """
         categories = [
-            'quantum',
-            'cosmic',
-            'ai',
-            'technical',
-            'blame',
-            'recommendations',
-            'connectors',
-            'intensifiers'
+            "quantum",
+            "cosmic",
+            "ai",
+            "technical",
+            "blame",
+            "recommendations",
+            "connectors",
+            "intensifiers",
         ]
 
         data = {}
@@ -112,21 +112,21 @@ class DataLoader:
             List of fallback excuses
         """
         fallbacks = {
-            'quantum': ['quantum interference'],
-            'cosmic': ['cosmic ray interference'],
-            'ai': ['AI malfunction'],
-            'technical': ['technical difficulties'],
-            'blame': ['unexpected behavior'],
-            'recommendations': ['Try again later'],
-            'connectors': ['which caused', 'resulting in'],
-            'intensifiers': {
-                'mild': ['slightly'],
-                'medium': ['definitely'],
-                'severe': ['catastrophically']
-            }
+            "quantum": ["quantum interference"],
+            "cosmic": ["cosmic ray interference"],
+            "ai": ["AI malfunction"],
+            "technical": ["technical difficulties"],
+            "blame": ["unexpected behavior"],
+            "recommendations": ["Try again later"],
+            "connectors": ["which caused", "resulting in"],
+            "intensifiers": {
+                "mild": ["slightly"],
+                "medium": ["definitely"],
+                "severe": ["catastrophically"],
+            },
         }
 
-        return fallbacks.get(category, ['unknown error'])
+        return fallbacks.get(category, ["unknown error"])
 
     def get_available_languages(self) -> List[str]:
         """
@@ -139,7 +139,7 @@ class DataLoader:
         languages = []
 
         for path in data_root.iterdir():
-            if path.is_dir() and not path.name.startswith('_'):
+            if path.is_dir() and not path.name.startswith("_"):
                 languages.append(path.name)
 
         return languages
@@ -152,8 +152,14 @@ class DataLoader:
             Dictionary mapping category names to validation status
         """
         categories = [
-            'quantum', 'cosmic', 'ai', 'technical',
-            'blame', 'recommendations', 'connectors', 'intensifiers'
+            "quantum",
+            "cosmic",
+            "ai",
+            "technical",
+            "blame",
+            "recommendations",
+            "connectors",
+            "intensifiers",
         ]
 
         validation = {}
@@ -166,12 +172,12 @@ class DataLoader:
                 continue
 
             try:
-                with open(file_path, 'r', encoding='utf-8') as f:
+                with open(file_path, "r", encoding="utf-8") as f:
                     data = json.load(f)
 
                 # Check if data has expected structure
-                if 'excuses' in data and isinstance(data['excuses'], list):
-                    validation[category] = len(data['excuses']) > 0
+                if "excuses" in data and isinstance(data["excuses"], list):
+                    validation[category] = len(data["excuses"]) > 0
                 elif isinstance(data, list):
                     validation[category] = len(data) > 0
                 elif isinstance(data, dict):

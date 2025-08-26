@@ -68,13 +68,13 @@ class ExcuseLeaderboard:
             self.load()
 
     def add_excuse(
-            self,
-            excuse_text: str,
-            quality_score: int,
-            severity: str = 'medium',
-            category: str = 'general',
-            language: str = 'en',
-            metadata: Optional[Dict[str, Any]] = None
+        self,
+        excuse_text: str,
+        quality_score: int,
+        severity: str = "medium",
+        category: str = "general",
+        language: str = "en",
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> LeaderboardEntry:
         """
         Add an excuse to the leaderboard.
@@ -97,7 +97,7 @@ class ExcuseLeaderboard:
             category=category,
             language=language,
             timestamp=time.time(),
-            metadata=metadata or {}
+            metadata=metadata or {},
         )
 
         self.entries.append(entry)
@@ -106,7 +106,7 @@ class ExcuseLeaderboard:
         if len(self.entries) > self.max_size:
             # Remove lowest quality score
             self.entries.sort(key=lambda x: x.quality_score, reverse=True)
-            self.entries = self.entries[:self.max_size]
+            self.entries = self.entries[: self.max_size]
 
         # Save if storage enabled
         if self.storage_path:
@@ -130,7 +130,7 @@ class ExcuseLeaderboard:
             severity=excuse.severity,
             category=excuse.category,
             language=excuse.language,
-            metadata=excuse.metadata
+            metadata=excuse.metadata,
         )
 
     def vote(self, excuse_text: str, upvote: bool = True):
@@ -163,9 +163,7 @@ class ExcuseLeaderboard:
             List of top entries
         """
         sorted_entries = sorted(
-            self.entries,
-            key=lambda x: x.quality_score,
-            reverse=True
+            self.entries, key=lambda x: x.quality_score, reverse=True
         )
         return sorted_entries[:n]
 
@@ -179,11 +177,7 @@ class ExcuseLeaderboard:
         Returns:
             List of top entries
         """
-        sorted_entries = sorted(
-            self.entries,
-            key=lambda x: x.net_votes,
-            reverse=True
-        )
+        sorted_entries = sorted(self.entries, key=lambda x: x.net_votes, reverse=True)
         return sorted_entries[:n]
 
     def get_most_controversial(self, n: int = 10) -> List[LeaderboardEntry]:
@@ -197,9 +191,7 @@ class ExcuseLeaderboard:
             List of most controversial entries
         """
         sorted_entries = sorted(
-            self.entries,
-            key=lambda x: x.controversy_score,
-            reverse=True
+            self.entries, key=lambda x: x.controversy_score, reverse=True
         )
         return sorted_entries[:n]
 
@@ -213,11 +205,7 @@ class ExcuseLeaderboard:
         Returns:
             List of recent entries
         """
-        sorted_entries = sorted(
-            self.entries,
-            key=lambda x: x.timestamp,
-            reverse=True
-        )
+        sorted_entries = sorted(self.entries, key=lambda x: x.timestamp, reverse=True)
         return sorted_entries[:n]
 
     def get_by_category(self, category: str, n: int = 10) -> List[LeaderboardEntry]:
@@ -232,11 +220,7 @@ class ExcuseLeaderboard:
             List of entries in category
         """
         filtered = [e for e in self.entries if e.category == category]
-        sorted_entries = sorted(
-            filtered,
-            key=lambda x: x.quality_score,
-            reverse=True
-        )
+        sorted_entries = sorted(filtered, key=lambda x: x.quality_score, reverse=True)
         return sorted_entries[:n]
 
     def get_by_severity(self, severity: str, n: int = 10) -> List[LeaderboardEntry]:
@@ -251,11 +235,7 @@ class ExcuseLeaderboard:
             List of entries with severity
         """
         filtered = [e for e in self.entries if e.severity == severity]
-        sorted_entries = sorted(
-            filtered,
-            key=lambda x: x.quality_score,
-            reverse=True
-        )
+        sorted_entries = sorted(filtered, key=lambda x: x.quality_score, reverse=True)
         return sorted_entries[:n]
 
     def get_stats(self) -> Dict[str, Any]:
@@ -267,11 +247,11 @@ class ExcuseLeaderboard:
         """
         if not self.entries:
             return {
-                'total_excuses': 0,
-                'average_quality': 0,
-                'categories': {},
-                'severities': {},
-                'languages': {}
+                "total_excuses": 0,
+                "average_quality": 0,
+                "categories": {},
+                "severities": {},
+                "languages": {},
             }
 
         total = len(self.entries)
@@ -293,21 +273,25 @@ class ExcuseLeaderboard:
             languages[entry.language] = languages.get(entry.language, 0) + 1
 
         # Find best and worst
-        best = max(self.entries, key=lambda x: x.quality_score) if self.entries else None
-        worst = min(self.entries, key=lambda x: x.quality_score) if self.entries else None
+        best = (
+            max(self.entries, key=lambda x: x.quality_score) if self.entries else None
+        )
+        worst = (
+            min(self.entries, key=lambda x: x.quality_score) if self.entries else None
+        )
 
         return {
-            'total_excuses': total,
-            'average_quality': avg_quality,
-            'categories': categories,
-            'severities': severities,
-            'languages': languages,
-            'best_excuse': best.excuse_text if best else None,
-            'best_score': best.quality_score if best else None,
-            'worst_excuse': worst.excuse_text if worst else None,
-            'worst_score': worst.quality_score if worst else None,
-            'total_upvotes': sum(e.upvotes for e in self.entries),
-            'total_downvotes': sum(e.downvotes for e in self.entries)
+            "total_excuses": total,
+            "average_quality": avg_quality,
+            "categories": categories,
+            "severities": severities,
+            "languages": languages,
+            "best_excuse": best.excuse_text if best else None,
+            "best_score": best.quality_score if best else None,
+            "worst_excuse": worst.excuse_text if worst else None,
+            "worst_score": worst.quality_score if worst else None,
+            "total_upvotes": sum(e.upvotes for e in self.entries),
+            "total_downvotes": sum(e.downvotes for e in self.entries),
         }
 
     def clear(self):
@@ -322,14 +306,14 @@ class ExcuseLeaderboard:
             return
 
         data = {
-            'entries': [entry.to_dict() for entry in self.entries],
-            'max_size': self.max_size,
-            'timestamp': time.time()
+            "entries": [entry.to_dict() for entry in self.entries],
+            "max_size": self.max_size,
+            "timestamp": time.time(),
         }
 
         self.storage_path.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(self.storage_path, 'w', encoding='utf-8') as f:
+        with open(self.storage_path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
 
     def load(self):
@@ -338,22 +322,22 @@ class ExcuseLeaderboard:
             return
 
         try:
-            with open(self.storage_path, 'r', encoding='utf-8') as f:
+            with open(self.storage_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
 
             self.entries = [
-                LeaderboardEntry(**entry) for entry in data.get('entries', [])
+                LeaderboardEntry(**entry) for entry in data.get("entries", [])
             ]
 
             # Maintain max size
             if len(self.entries) > self.max_size:
-                self.entries = self.entries[:self.max_size]
+                self.entries = self.entries[: self.max_size]
 
         except Exception:
             # If loading fails, start fresh
             self.entries = []
 
-    def export(self, format: str = 'json') -> str:
+    def export(self, format: str = "json") -> str:
         """
         Export leaderboard in specified format.
 
@@ -363,14 +347,14 @@ class ExcuseLeaderboard:
         Returns:
             Exported data as string
         """
-        if format == 'json':
+        if format == "json":
             return json.dumps(
                 [entry.to_dict() for entry in self.entries],
                 indent=2,
-                ensure_ascii=False
+                ensure_ascii=False,
             )
 
-        elif format == 'csv':
+        elif format == "csv":
             import csv
             from io import StringIO
 
@@ -378,45 +362,57 @@ class ExcuseLeaderboard:
             writer = csv.writer(output)
 
             # Header
-            writer.writerow([
-                'Excuse', 'Score', 'Severity', 'Category',
-                'Language', 'Upvotes', 'Downvotes', 'Timestamp'
-            ])
+            writer.writerow(
+                [
+                    "Excuse",
+                    "Score",
+                    "Severity",
+                    "Category",
+                    "Language",
+                    "Upvotes",
+                    "Downvotes",
+                    "Timestamp",
+                ]
+            )
 
             # Data
             for entry in self.entries:
-                writer.writerow([
-                    entry.excuse_text,
-                    entry.quality_score,
-                    entry.severity,
-                    entry.category,
-                    entry.language,
-                    entry.upvotes,
-                    entry.downvotes,
-                    entry.timestamp
-                ])
+                writer.writerow(
+                    [
+                        entry.excuse_text,
+                        entry.quality_score,
+                        entry.severity,
+                        entry.category,
+                        entry.language,
+                        entry.upvotes,
+                        entry.downvotes,
+                        entry.timestamp,
+                    ]
+                )
 
             return output.getvalue()
 
-        elif format == 'markdown':
-            lines = ['# Excuse Leaderboard\n']
+        elif format == "markdown":
+            lines = ["# Excuse Leaderboard\n"]
 
             # Top by quality
-            lines.append('## Top by Quality Score\n')
+            lines.append("## Top by Quality Score\n")
             for i, entry in enumerate(self.get_top_by_quality(5), 1):
-                lines.append(f"{i}. **Score {entry.quality_score}**: {entry.excuse_text}")
+                lines.append(
+                    f"{i}. **Score {entry.quality_score}**: {entry.excuse_text}"
+                )
 
-            lines.append('\n## Top by Votes\n')
+            lines.append("\n## Top by Votes\n")
             for i, entry in enumerate(self.get_top_by_votes(5), 1):
                 lines.append(f"{i}. **+{entry.net_votes}**: {entry.excuse_text}")
 
             # Stats
             stats = self.get_stats()
-            lines.append('\n## Statistics\n')
+            lines.append("\n## Statistics\n")
             lines.append(f"- Total Excuses: {stats['total_excuses']}")
             lines.append(f"- Average Quality: {stats['average_quality']:.1f}")
 
-            return '\n'.join(lines)
+            return "\n".join(lines)
 
         else:
             raise ValueError(f"Unsupported format: {format}")
@@ -441,7 +437,8 @@ class GlobalLeaderboard(ExcuseLeaderboard):
     def _init_db(self):
         """Initialize database schema."""
         with self._get_db() as conn:
-            conn.execute("""
+            conn.execute(
+                """
                 CREATE TABLE IF NOT EXISTS excuses (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     excuse_text TEXT UNIQUE NOT NULL,
@@ -454,17 +451,22 @@ class GlobalLeaderboard(ExcuseLeaderboard):
                     timestamp REAL NOT NULL,
                     metadata TEXT
                 )
-            """)
+            """
+            )
 
-            conn.execute("""
+            conn.execute(
+                """
                 CREATE INDEX IF NOT EXISTS idx_quality 
                 ON excuses(quality_score DESC)
-            """)
+            """
+            )
 
-            conn.execute("""
+            conn.execute(
+                """
                 CREATE INDEX IF NOT EXISTS idx_votes 
                 ON excuses(upvotes DESC, downvotes ASC)
-            """)
+            """
+            )
 
     @contextmanager
     def _get_db(self):

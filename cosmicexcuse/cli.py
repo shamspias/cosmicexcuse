@@ -30,7 +30,7 @@ def main(argv: Optional[list] = None):
         argv: Command line arguments (for testing)
     """
     parser = argparse.ArgumentParser(
-        description='Generate quantum-grade excuses for your code failures',
+        description="Generate quantum-grade excuses for your code failures",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -39,73 +39,60 @@ Examples:
   cosmicexcuse --haiku                   # Generate haiku excuse
   cosmicexcuse -l bn -c 3                # Generate 3 Bengali excuses
   cosmicexcuse --category quantum        # Generate quantum-specific excuse
-        """
+        """,
     )
 
     parser.add_argument(
-        '-v', '--version',
-        action='version',
-        version=f'CosmicExcuse {__version__}'
+        "-v", "--version", action="version", version=f"CosmicExcuse {__version__}"
     )
 
     parser.add_argument(
-        '-e', '--error',
+        "-e",
+        "--error",
         type=str,
-        default='',
-        help='Error message to generate excuse for'
+        default="",
+        help="Error message to generate excuse for",
     )
 
     parser.add_argument(
-        '-l', '--language',
+        "-l",
+        "--language",
         type=str,
-        default='en',
-        choices=['en', 'bn'],
-        help='Language for excuses (en=English, bn=Bengali)'
+        default="en",
+        choices=["en", "bn"],
+        help="Language for excuses (en=English, bn=Bengali)",
     )
 
     parser.add_argument(
-        '-c', '--count',
-        type=int,
-        default=1,
-        help='Number of excuses to generate'
+        "-c", "--count", type=int, default=1, help="Number of excuses to generate"
     )
 
     parser.add_argument(
-        '--category',
+        "--category",
         type=str,
-        choices=['quantum', 'cosmic', 'ai', 'technical', 'blame'],
-        help='Specific category of excuses'
+        choices=["quantum", "cosmic", "ai", "technical", "blame"],
+        help="Specific category of excuses",
     )
 
     parser.add_argument(
-        '--haiku',
-        action='store_true',
-        help='Generate excuse in haiku format'
+        "--haiku", action="store_true", help="Generate excuse in haiku format"
+    )
+
+    parser.add_argument("--json", action="store_true", help="Output in JSON format")
+
+    parser.add_argument(
+        "--no-banner", action="store_true", help="Skip the banner display"
     )
 
     parser.add_argument(
-        '--json',
-        action='store_true',
-        help='Output in JSON format'
+        "--show-score", action="store_true", help="Show quality score for excuses"
     )
 
     parser.add_argument(
-        '--no-banner',
-        action='store_true',
-        help='Skip the banner display'
-    )
-
-    parser.add_argument(
-        '--show-score',
-        action='store_true',
-        help='Show quality score for excuses'
-    )
-
-    parser.add_argument(
-        '--min-score',
+        "--min-score",
         type=int,
         default=0,
-        help='Minimum quality score (regenerate until met)'
+        help="Minimum quality score (regenerate until met)",
     )
 
     args = parser.parse_args(argv)
@@ -122,7 +109,7 @@ Examples:
         if args.haiku:
             haiku = generator.generate_haiku(args.error)
             if args.json:
-                print(json.dumps({'haiku': haiku, 'language': args.language}))
+                print(json.dumps({"haiku": haiku, "language": args.language}))
             else:
                 print("\n🎋 Haiku Excuse:\n")
                 print(haiku)
@@ -139,8 +126,7 @@ Examples:
 
             while attempts < max_attempts:
                 excuse = generator.generate(
-                    error_message=args.error,
-                    category=args.category
+                    error_message=args.error, category=args.category
                 )
 
                 if excuse.quality_score >= args.min_score:
@@ -156,21 +142,23 @@ Examples:
         if args.json:
             output = []
             for excuse in excuses:
-                output.append({
-                    'text': excuse.text,
-                    'recommendation': excuse.recommendation,
-                    'severity': excuse.severity,
-                    'category': excuse.category,
-                    'quality_score': excuse.quality_score,
-                    'language': excuse.language
-                })
+                output.append(
+                    {
+                        "text": excuse.text,
+                        "recommendation": excuse.recommendation,
+                        "severity": excuse.severity,
+                        "category": excuse.category,
+                        "quality_score": excuse.quality_score,
+                        "language": excuse.language,
+                    }
+                )
             print(json.dumps(output, indent=2, ensure_ascii=False))
         else:
             for i, excuse in enumerate(excuses, 1):
                 if args.count > 1:
                     print(f"\n{'=' * 50}")
                     print(f"Excuse #{i}")
-                    print('=' * 50)
+                    print("=" * 50)
 
                 print(f"\n💫 Excuse: {excuse.text}")
                 print(f"\n💡 Recommendation: {excuse.recommendation}")
@@ -193,5 +181,5 @@ Examples:
         return 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

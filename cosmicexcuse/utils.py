@@ -48,7 +48,7 @@ def truncate_text(text: str, max_length: int, suffix: str = "...") -> str:
     if max_length <= len(suffix):
         return suffix[:max_length]
 
-    return text[:max_length - len(suffix)] + suffix
+    return text[: max_length - len(suffix)] + suffix
 
 
 def extract_keywords(text: str, min_length: int = 3) -> List[str]:
@@ -63,19 +63,41 @@ def extract_keywords(text: str, min_length: int = 3) -> List[str]:
         List of keywords
     """
     # Remove special characters and split
-    words = re.findall(r'\b[a-zA-Z]+\b', text.lower())
+    words = re.findall(r"\b[a-zA-Z]+\b", text.lower())
 
     # Filter by length and remove common words
     common_words = {
-        'the', 'and', 'for', 'are', 'but', 'not', 'you', 'all',
-        'was', 'were', 'been', 'have', 'has', 'had', 'will',
-        'would', 'could', 'should', 'may', 'might', 'can',
-        'this', 'that', 'these', 'those', 'with', 'from'
+        "the",
+        "and",
+        "for",
+        "are",
+        "but",
+        "not",
+        "you",
+        "all",
+        "was",
+        "were",
+        "been",
+        "have",
+        "has",
+        "had",
+        "will",
+        "would",
+        "could",
+        "should",
+        "may",
+        "might",
+        "can",
+        "this",
+        "that",
+        "these",
+        "those",
+        "with",
+        "from",
     }
 
     keywords = [
-        word for word in words
-        if len(word) >= min_length and word not in common_words
+        word for word in words if len(word) >= min_length and word not in common_words
     ]
 
     # Remove duplicates while preserving order
@@ -120,7 +142,7 @@ def calculate_similarity(text1: str, text2: str) -> float:
     return len(intersection) / len(union)
 
 
-def format_timestamp(timestamp: float, format: str = 'human') -> str:
+def format_timestamp(timestamp: float, format: str = "human") -> str:
     """
     Format timestamp for display.
 
@@ -133,10 +155,10 @@ def format_timestamp(timestamp: float, format: str = 'human') -> str:
     """
     dt = datetime.fromtimestamp(timestamp, tz=timezone.utc)
 
-    if format == 'iso':
+    if format == "iso":
         return dt.isoformat()
 
-    elif format == 'relative':
+    elif format == "relative":
         now = datetime.now(timezone.utc)
         delta = now - dt
 
@@ -200,10 +222,10 @@ def sanitize_input(text: str, max_length: int = 1000) -> str:
         return ""
 
     # Remove control characters
-    text = ''.join(char for char in text if char.isprintable() or char.isspace())
+    text = "".join(char for char in text if char.isprintable() or char.isspace())
 
     # Normalize whitespace
-    text = ' '.join(text.split())
+    text = " ".join(text.split())
 
     # Truncate if necessary
     text = truncate_text(text, max_length, "")
@@ -222,20 +244,20 @@ def parse_error_code(error_message: str) -> Optional[Tuple[str, str]]:
         Tuple of (error_type, error_code) or None
     """
     patterns = [
-        r'([A-Z][a-zA-Z]+Error)(?:\s*:\s*(.+))?',  # PythonError: message
-        r'(ERROR)\s+(\d+)',  # ERROR 404
-        r'([A-Z]+)-(\d+)',  # HTTP-500
-        r'(0x[0-9A-Fa-f]+)',  # Hex error codes
-        r'(\w+Exception)(?:\s*:\s*(.+))?',  # JavaException: message
+        r"([A-Z][a-zA-Z]+Error)(?:\s*:\s*(.+))?",  # PythonError: message
+        r"(ERROR)\s+(\d+)",  # ERROR 404
+        r"([A-Z]+)-(\d+)",  # HTTP-500
+        r"(0x[0-9A-Fa-f]+)",  # Hex error codes
+        r"(\w+Exception)(?:\s*:\s*(.+))?",  # JavaException: message
     ]
 
     for pattern in patterns:
         match = re.search(pattern, error_message)
         if match:
             if len(match.groups()) == 2:
-                return (match.group(1), match.group(2) or '')
+                return (match.group(1), match.group(2) or "")
             else:
-                return (match.group(1), '')
+                return (match.group(1), "")
 
     return None
 
@@ -263,7 +285,7 @@ def split_into_sentences(text: str) -> List[str]:
         List of sentences
     """
     # Simple sentence splitter
-    sentences = re.split(r'[.!?]+', text)
+    sentences = re.split(r"[.!?]+", text)
     return [s.strip() for s in sentences if s.strip()]
 
 
@@ -277,7 +299,7 @@ def is_valid_language_code(code: str) -> bool:
     Returns:
         True if valid
     """
-    return bool(re.match(r'^[a-z]{2}$', code.lower()))
+    return bool(re.match(r"^[a-z]{2}$", code.lower()))
 
 
 def estimate_reading_time(text: str, wpm: int = 200) -> int:

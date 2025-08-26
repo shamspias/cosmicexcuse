@@ -28,21 +28,21 @@ from cosmicexcuse.leaderboard import ExcuseLeaderboard
 from cosmicexcuse.exceptions import (
     CosmicExcuseError,
     LanguageNotSupportedError,
-    DataLoadError
+    DataLoadError,
 )
 
 __all__ = [
-    '__version__',
-    'CosmicExcuse',
-    'ExcuseGenerator',
-    'SeverityAnalyzer',
-    'MarkovChain',
-    'ExcuseFormatter',
-    'HaikuFormatter',
-    'ExcuseLeaderboard',
-    'CosmicExcuseError',
-    'LanguageNotSupportedError',
-    'DataLoadError',
+    "__version__",
+    "CosmicExcuse",
+    "ExcuseGenerator",
+    "SeverityAnalyzer",
+    "MarkovChain",
+    "ExcuseFormatter",
+    "HaikuFormatter",
+    "ExcuseLeaderboard",
+    "CosmicExcuseError",
+    "LanguageNotSupportedError",
+    "DataLoadError",
 ]
 
 

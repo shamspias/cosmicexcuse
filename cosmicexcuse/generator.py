@@ -32,6 +32,7 @@ class Excuse:
         timestamp: Generation timestamp
         metadata: Additional metadata
     """
+
     text: str
     recommendation: str
     severity: str
@@ -48,9 +49,9 @@ class ExcuseGenerator:
     Base excuse generator class.
     """
 
-    SUPPORTED_LANGUAGES = ['en', 'bn']
+    SUPPORTED_LANGUAGES = ["en", "bn"]
 
-    def __init__(self, language: str = 'en', data_path: Optional[Path] = None):
+    def __init__(self, language: str = "en", data_path: Optional[Path] = None):
         """
         Initialize the excuse generator.
 
@@ -82,7 +83,7 @@ class ExcuseGenerator:
         """Build Markov chain from technical terms."""
         # Get technical terms from data
         technical_terms = []
-        for category in ['quantum', 'technical', 'ai']:
+        for category in ["quantum", "technical", "ai"]:
             if category in self.data:
                 technical_terms.extend(self.data[category])
 
@@ -94,10 +95,10 @@ class ExcuseGenerator:
         self.markov.train(corpus)
 
     def generate(
-            self,
-            error_message: str = "",
-            context: Optional[str] = None,
-            category: Optional[str] = None
+        self,
+        error_message: str = "",
+        context: Optional[str] = None,
+        category: Optional[str] = None,
     ) -> Excuse:
         """
         Generate an excuse for the given error.
@@ -123,7 +124,7 @@ class ExcuseGenerator:
             primary_category = random.choice(list(self.data.keys()))
 
         # Ensure we don't pick recommendations or connectors as primary
-        while primary_category in ['recommendations', 'connectors', 'intensifiers']:
+        while primary_category in ["recommendations", "connectors", "intensifiers"]:
             primary_category = random.choice(list(self.data.keys()))
 
         # Get excuse components
@@ -131,8 +132,10 @@ class ExcuseGenerator:
 
         # Get secondary category
         available_categories = [
-            k for k in self.data.keys()
-            if k not in [primary_category, 'recommendations', 'connectors', 'intensifiers']
+            k
+            for k in self.data.keys()
+            if k
+            not in [primary_category, "recommendations", "connectors", "intensifiers"]
         ]
         secondary_category = random.choice(available_categories)
         secondary_excuse = random.choice(self.data[secondary_category])
@@ -141,7 +144,7 @@ class ExcuseGenerator:
         intensifier = self._get_intensifier(severity)
 
         # Get connector
-        connector = random.choice(self.data.get('connectors', ['which caused']))
+        connector = random.choice(self.data.get("connectors", ["which caused"]))
 
         # Generate Markov nonsense
         markov_phrase = self.markov.generate(length=5)
@@ -153,12 +156,12 @@ class ExcuseGenerator:
             intensifier=intensifier,
             connector=connector,
             markov_phrase=markov_phrase,
-            severity=severity
+            severity=severity,
         )
 
         # Get recommendation
         recommendation = random.choice(
-            self.data.get('recommendations', ['Try turning it off and on again'])
+            self.data.get("recommendations", ["Try turning it off and on again"])
         )
 
         # Calculate quality score
@@ -175,11 +178,11 @@ class ExcuseGenerator:
             language=self.language,
             timestamp=time.time(),
             metadata={
-                'secondary_category': secondary_category,
-                'markov_component': markov_phrase,
-                'context': context,
-                'error_message': error_message
-            }
+                "secondary_category": secondary_category,
+                "markov_component": markov_phrase,
+                "context": context,
+                "error_message": error_message,
+            },
         )
 
         return excuse
@@ -192,12 +195,12 @@ class ExcuseGenerator:
 
     def _get_intensifier(self, severity: str) -> str:
         """Get an intensifier based on severity."""
-        intensifiers = self.data.get('intensifiers', {})
+        intensifiers = self.data.get("intensifiers", {})
 
         if isinstance(intensifiers, dict):
-            severity_intensifiers = intensifiers.get(severity, ['definitely'])
+            severity_intensifiers = intensifiers.get(severity, ["definitely"])
         else:
-            severity_intensifiers = ['definitely']
+            severity_intensifiers = ["definitely"]
 
         return random.choice(severity_intensifiers)
 
@@ -207,7 +210,7 @@ class ExcuseGenerator:
         score = len(excuse_text) * seed % 100
 
         # Bonus points for certain keywords
-        bonus_words = ['quantum', 'cosmic', 'AI', 'blockchain', 'neural']
+        bonus_words = ["quantum", "cosmic", "AI", "blockchain", "neural"]
         for word in bonus_words:
             if word.lower() in excuse_text.lower():
                 score = min(100, score + 5)
@@ -259,9 +262,13 @@ class ExcuseGenerator:
 
         # Get components for haiku
         components = {
-            'line_5_1': random.choice(self.data.get('quantum', ['Quantum states collapse'])),
-            'line_7': random.choice(self.data.get('cosmic', ['The cosmos interferes today'])),
-            'line_5_2': random.choice(self.data.get('ai', ['AI has gone rogue'])),
+            "line_5_1": random.choice(
+                self.data.get("quantum", ["Quantum states collapse"])
+            ),
+            "line_7": random.choice(
+                self.data.get("cosmic", ["The cosmos interferes today"])
+            ),
+            "line_5_2": random.choice(self.data.get("ai", ["AI has gone rogue"])),
         }
 
         return haiku_formatter.format_haiku(components)
@@ -273,7 +280,7 @@ class CosmicExcuse(ExcuseGenerator):
     Extends ExcuseGenerator with additional convenience methods.
     """
 
-    def __init__(self, language: str = 'en', data_path: Optional[Path] = None):
+    def __init__(self, language: str = "en", data_path: Optional[Path] = None):
         """
         Initialize CosmicExcuse generator.
 
@@ -290,11 +297,11 @@ class CosmicExcuse(ExcuseGenerator):
         self.history: List[Excuse] = []
 
     def generate(
-            self,
-            error_message: str = "",
-            context: Optional[str] = None,
-            category: Optional[str] = None,
-            save_history: bool = True
+        self,
+        error_message: str = "",
+        context: Optional[str] = None,
+        category: Optional[str] = None,
+        save_history: bool = True,
     ) -> Excuse:
         """
         Generate an excuse and optionally save to history.
@@ -331,7 +338,7 @@ class CosmicExcuse(ExcuseGenerator):
         """Clear the excuse history."""
         self.history.clear()
 
-    def export_history(self, format: str = 'json') -> Union[str, List[Dict]]:
+    def export_history(self, format: str = "json") -> Union[str, List[Dict]]:
         """
         Export history in specified format.
 
@@ -341,25 +348,27 @@ class CosmicExcuse(ExcuseGenerator):
         Returns:
             Formatted history
         """
-        if format == 'json':
+        if format == "json":
             return [
                 {
-                    'text': exc.text,
-                    'recommendation': exc.recommendation,
-                    'severity': exc.severity,
-                    'category': exc.category,
-                    'quality_score': exc.quality_score,
-                    'timestamp': exc.timestamp,
-                    'language': exc.language
+                    "text": exc.text,
+                    "recommendation": exc.recommendation,
+                    "severity": exc.severity,
+                    "category": exc.category,
+                    "quality_score": exc.quality_score,
+                    "timestamp": exc.timestamp,
+                    "language": exc.language,
                 }
                 for exc in self.history
             ]
-        elif format == 'text':
-            return '\n\n'.join([
-                f"Excuse #{i + 1} (Score: {exc.quality_score}/100):\n"
-                f"{exc.text}\n"
-                f"Recommendation: {exc.recommendation}"
-                for i, exc in enumerate(self.history)
-            ])
+        elif format == "text":
+            return "\n\n".join(
+                [
+                    f"Excuse #{i + 1} (Score: {exc.quality_score}/100):\n"
+                    f"{exc.text}\n"
+                    f"Recommendation: {exc.recommendation}"
+                    for i, exc in enumerate(self.history)
+                ]
+            )
         else:
             raise ValueError(f"Unsupported format: {format}")

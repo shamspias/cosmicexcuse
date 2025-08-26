@@ -66,7 +66,7 @@ class MarkovChain:
 
         # Build chain
         for i in range(len(corpus) - self.order):
-            key = tuple(corpus[i:i + self.order])
+            key = tuple(corpus[i : i + self.order])
             value = corpus[i + self.order]
             self.chain[key].append(value)
 
@@ -99,9 +99,17 @@ class MarkovChain:
             if matching_keys:
                 current = random.choice(matching_keys)
             else:
-                current = random.choice(self.starters) if self.starters else random.choice(list(self.chain.keys()))
+                current = (
+                    random.choice(self.starters)
+                    if self.starters
+                    else random.choice(list(self.chain.keys()))
+                )
         else:
-            current = random.choice(self.starters) if self.starters else random.choice(list(self.chain.keys()))
+            current = (
+                random.choice(self.starters)
+                if self.starters
+                else random.choice(list(self.chain.keys()))
+            )
 
         result = list(current)
 
@@ -123,7 +131,7 @@ class MarkovChain:
                 else:
                     break
 
-        return ' '.join(result)
+        return " ".join(result)
 
     def generate_sentence(self, min_length: int = 3, max_length: int = 10) -> str:
         """

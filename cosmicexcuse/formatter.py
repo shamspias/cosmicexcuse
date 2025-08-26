@@ -44,14 +44,14 @@ class ExcuseFormatter(BaseFormatter):
         return self.format_excuse(**data)
 
     def format_excuse(
-            self,
-            primary_excuse: str,
-            secondary_excuse: str,
-            intensifier: str,
-            connector: str,
-            markov_phrase: str,
-            severity: str,
-            **kwargs
+        self,
+        primary_excuse: str,
+        secondary_excuse: str,
+        intensifier: str,
+        connector: str,
+        markov_phrase: str,
+        severity: str,
+        **kwargs,
     ) -> str:
         """
         Format components into an excuse string.
@@ -79,21 +79,20 @@ class ExcuseFormatter(BaseFormatter):
 
         # Technical analysis
         if markov_phrase:
-            excuse_parts.append(f"Additionally, analysis shows {markov_phrase} instability")
+            excuse_parts.append(
+                f"Additionally, analysis shows {markov_phrase} instability"
+            )
 
         excuse = ". ".join(excuse_parts) + "."
 
         # Apply length limit if specified
         if self.max_length and len(excuse) > self.max_length:
-            excuse = excuse[:self.max_length - 3] + "..."
+            excuse = excuse[: self.max_length - 3] + "..."
 
         return excuse
 
     def format_technical(
-            self,
-            primary_excuse: str,
-            technical_details: List[str],
-            **kwargs
+        self, primary_excuse: str, technical_details: List[str], **kwargs
     ) -> str:
         """
         Format with technical details emphasis.
@@ -110,10 +109,7 @@ class ExcuseFormatter(BaseFormatter):
         return f"Technical Analysis: {primary_excuse} | Stack trace: {details}"
 
     def format_corporate(
-            self,
-            primary_excuse: str,
-            recommendation: str,
-            **kwargs
+        self, primary_excuse: str, recommendation: str, **kwargs
     ) -> str:
         """
         Format in corporate speak.
@@ -130,7 +126,7 @@ class ExcuseFormatter(BaseFormatter):
             "We are currently experiencing {issue}. Our team is actively working on a resolution. {action}",
             "Due to {issue}, some users may experience degraded performance. {action}",
             "An unexpected {issue} has been identified. {action}",
-            "We've detected {issue} affecting system stability. {action}"
+            "We've detected {issue} affecting system stability. {action}",
         ]
 
         template = random.choice(templates)
@@ -153,7 +149,7 @@ class HaikuFormatter(BaseFormatter):
             "AI has gone rogue",
             "Errors cascade down",
             "System cries for help",
-            "Memory leaks out"
+            "Memory leaks out",
         ]
 
         self.syllable_7_templates = [
@@ -164,7 +160,7 @@ class HaikuFormatter(BaseFormatter):
             "Distributed chaos reigns here",
             "The blockchain awakens now",
             "Neural networks dream of bugs",
-            "Microservices conspire"
+            "Microservices conspire",
         ]
 
     def format(self, data: Dict[str, Any]) -> str:
@@ -189,11 +185,11 @@ class HaikuFormatter(BaseFormatter):
         Returns:
             Formatted haiku (5-7-5 syllables)
         """
-        if 'line_5_1' in components:
+        if "line_5_1" in components:
             # Direct haiku components provided
-            line1 = self._truncate_to_syllables(components.get('line_5_1', ''), 5)
-            line2 = self._truncate_to_syllables(components.get('line_7', ''), 7)
-            line3 = self._truncate_to_syllables(components.get('line_5_2', ''), 5)
+            line1 = self._truncate_to_syllables(components.get("line_5_1", ""), 5)
+            line2 = self._truncate_to_syllables(components.get("line_7", ""), 7)
+            line3 = self._truncate_to_syllables(components.get("line_5_2", ""), 5)
         else:
             # Generate from templates
             line1 = random.choice(self.syllable_5_templates)
@@ -220,7 +216,7 @@ class HaikuFormatter(BaseFormatter):
         # Simplified: assume ~1.3 syllables per word on average
         words = text.split()
         target_words = max(1, int(syllables / 1.3))
-        return ' '.join(words[:target_words])
+        return " ".join(words[:target_words])
 
 
 class MarkdownFormatter(BaseFormatter):
@@ -244,37 +240,39 @@ class MarkdownFormatter(BaseFormatter):
         output.append("## 🚨 System Excuse Report\n")
 
         # Main excuse
-        if 'text' in data:
+        if "text" in data:
             output.append(f"**Primary Analysis:** {data['text']}\n")
 
         # Metadata section
         output.append("### 📊 Metadata\n")
 
-        if 'severity' in data:
-            severity_emoji = {'mild': '🟢', 'medium': '🟡', 'severe': '🔴'}
-            emoji = severity_emoji.get(data['severity'], '⚪')
+        if "severity" in data:
+            severity_emoji = {"mild": "🟢", "medium": "🟡", "severe": "🔴"}
+            emoji = severity_emoji.get(data["severity"], "⚪")
             output.append(f"- **Severity:** {emoji} {data['severity'].capitalize()}")
 
-        if 'category' in data:
+        if "category" in data:
             output.append(f"- **Category:** {data['category'].capitalize()}")
 
-        if 'quality_score' in data:
+        if "quality_score" in data:
             output.append(f"- **Quality Score:** {data['quality_score']}/100")
 
-        if 'quantum_probability' in data:
-            output.append(f"- **Quantum Probability:** {data['quantum_probability']:.4f}")
+        if "quantum_probability" in data:
+            output.append(
+                f"- **Quantum Probability:** {data['quantum_probability']:.4f}"
+            )
 
         # Recommendation
-        if 'recommendation' in data:
+        if "recommendation" in data:
             output.append(f"\n### 💡 Recommended Action\n")
             output.append(f"> {data['recommendation']}")
 
         # Technical details
-        if 'metadata' in data and 'markov_component' in data['metadata']:
+        if "metadata" in data and "markov_component" in data["metadata"]:
             output.append(f"\n### 🔬 Technical Analysis\n")
             output.append(f"```\n{data['metadata']['markov_component']}\n```")
 
-        return '\n'.join(output)
+        return "\n".join(output)
 
 
 class JSONFormatter(BaseFormatter):
@@ -296,20 +294,20 @@ class JSONFormatter(BaseFormatter):
 
         # Extract relevant fields
         output = {
-            'excuse': data.get('text', ''),
-            'recommendation': data.get('recommendation', ''),
-            'severity': data.get('severity', 'unknown'),
-            'category': data.get('category', 'general'),
-            'quality_score': data.get('quality_score', 0),
-            'quantum_probability': data.get('quantum_probability', 0.0),
-            'timestamp': data.get('timestamp', 0),
-            'language': data.get('language', 'en')
+            "excuse": data.get("text", ""),
+            "recommendation": data.get("recommendation", ""),
+            "severity": data.get("severity", "unknown"),
+            "category": data.get("category", "general"),
+            "quality_score": data.get("quality_score", 0),
+            "quantum_probability": data.get("quantum_probability", 0.0),
+            "timestamp": data.get("timestamp", 0),
+            "language": data.get("language", "en"),
         }
 
         # Add metadata if present
-        if 'metadata' in data:
-            output['technical_details'] = data['metadata'].get('markov_component', '')
-            output['error_message'] = data['metadata'].get('error_message', '')
+        if "metadata" in data:
+            output["technical_details"] = data["metadata"].get("markov_component", "")
+            output["error_message"] = data["metadata"].get("error_message", "")
 
         return json.dumps(output, indent=2, ensure_ascii=False)
 
@@ -347,39 +345,37 @@ class PlainTextFormatter(BaseFormatter):
         lines.append("")
 
         # Main excuse
-        if 'text' in data:
+        if "text" in data:
             wrapped = textwrap.fill(
-                f"EXCUSE: {data['text']}",
-                width=self.width,
-                subsequent_indent="  "
+                f"EXCUSE: {data['text']}", width=self.width, subsequent_indent="  "
             )
             lines.append(wrapped)
             lines.append("")
 
         # Recommendation
-        if 'recommendation' in data:
+        if "recommendation" in data:
             wrapped = textwrap.fill(
                 f"RECOMMENDATION: {data['recommendation']}",
                 width=self.width,
-                subsequent_indent="  "
+                subsequent_indent="  ",
             )
             lines.append(wrapped)
             lines.append("")
 
         # Details
-        if 'severity' in data:
+        if "severity" in data:
             lines.append(f"SEVERITY: {data['severity'].upper()}")
 
-        if 'category' in data:
+        if "category" in data:
             lines.append(f"CATEGORY: {data['category'].upper()}")
 
-        if 'quality_score' in data:
+        if "quality_score" in data:
             lines.append(f"QUALITY: {data['quality_score']}/100")
 
         lines.append("")
         lines.append("=" * self.width)
 
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
 
 class TwitterFormatter(BaseFormatter):
@@ -406,7 +402,7 @@ class TwitterFormatter(BaseFormatter):
         Returns:
             Tweet-sized string
         """
-        text = data.get('text', '')
+        text = data.get("text", "")
 
         # Add hashtags
         hashtags = " #debugging #programming #excuses #quantum"
