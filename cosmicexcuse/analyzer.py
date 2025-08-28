@@ -3,7 +3,7 @@ Error severity analyzer module.
 """
 
 import re
-from typing import Dict, List
+from typing import Dict  # Removed unused List import
 
 
 class SeverityAnalyzer:
