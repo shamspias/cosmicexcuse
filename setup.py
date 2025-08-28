@@ -1,6 +1,7 @@
 """
 Setup configuration for CosmicExcuse package
 """
+
 from setuptools import setup, find_packages
 import os
 
@@ -15,7 +16,7 @@ with open(os.path.join("cosmicexcuse", "__version__.py")) as fp:
 
 setup(
     name="cosmicexcuse",
-    version=version['__version__'],
+    version=version["__version__"],
     author="Shamsuddin Ahmed",
     author_email="info@shamspias.com",
     description="Generate quantum-grade excuses for your code failures using fake AI",
@@ -79,7 +80,15 @@ setup(
     },
     zip_safe=False,
     keywords=[
-        "excuse", "generator", "quantum", "ai", "humor", "development",
-        "error-handling", "markov-chain", "debugging", "comedy"
+        "excuse",
+        "generator",
+        "quantum",
+        "ai",
+        "humor",
+        "development",
+        "error-handling",
+        "markov-chain",
+        "debugging",
+        "comedy",
     ],
 )
