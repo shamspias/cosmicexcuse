@@ -5,13 +5,13 @@ Command-line interface for CosmicExcuse.
 import argparse
 import json
 import sys
-from typing import Optional
+from typing import Optional, List, Any
 
 from cosmicexcuse import CosmicExcuse, __version__
 from cosmicexcuse.exceptions import CosmicExcuseError
 
 
-def print_banner():
+def print_banner() -> None:
     """Print a fancy banner."""
     banner = """
     ╔═══════════════════════════════════════╗
@@ -22,13 +22,8 @@ def print_banner():
     print(banner)
 
 
-def main(argv: Optional[list] = None):
-    """
-    Main CLI entry point.
-
-    Args:
-        argv: Command line arguments (for testing)
-    """
+def build_parser() -> argparse.ArgumentParser:
+    """Build and return the argument parser."""
     parser = argparse.ArgumentParser(
         description=("Generate quantum-grade excuses for your code failures"),
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -95,9 +90,106 @@ Examples:
         help="Minimum quality score (regenerate until met)",
     )
 
+    return parser
+
+
+def handle_haiku(
+    generator: CosmicExcuse, *, error: str, language: str, as_json: bool
+) -> int:
+    """Generate and print a haiku excuse."""
+    haiku = generator.generate_haiku(error)
+    if as_json:
+        print(json.dumps({"haiku": haiku, "language": language}))
+    else:
+        print("\n🎋 Haiku Excuse:\n")
+        print(haiku)
+        print()
+    return 0
+
+
+def generate_excuses(
+    generator: CosmicExcuse,
+    *,
+    error: str,
+    category: Optional[str],
+    count: int,
+    min_score: int,
+    max_attempts: int = 50,
+) -> List[Any]:
+    """
+    Generate a list of excuses, respecting a minimum quality score.
+
+    Returns a list of excuse objects as produced by CosmicExcuse.generate().
+    """
+    excuses: List[Any] = []
+
+    for _ in range(count):
+        attempts = 0
+        last_excuse = None
+
+        while attempts < max_attempts:
+            excuse = generator.generate(error_message=error, category=category)
+            last_excuse = excuse
+            if excuse.quality_score >= min_score:
+                excuses.append(excuse)
+                break
+            attempts += 1
+
+        if attempts >= max_attempts and last_excuse is not None:
+            # Use the last generated excuse even if below threshold
+            excuses.append(last_excuse)
+
+    return excuses
+
+
+def print_excuses_json(excuses: List[Any]) -> None:
+    """Print excuses as a JSON list."""
+    output = []
+    for excuse in excuses:
+        output.append(
+            {
+                "text": excuse.text,
+                "recommendation": excuse.recommendation,
+                "severity": excuse.severity,
+                "category": excuse.category,
+                "quality_score": excuse.quality_score,
+                "language": excuse.language,
+            }
+        )
+    print(json.dumps(output, indent=2, ensure_ascii=False))
+
+
+def print_excuses_text(excuses: List[Any], *, count: int, show_score: bool) -> None:
+    """Print excuses in a human-friendly format."""
+    for i, excuse in enumerate(excuses, 1):
+        if count > 1:
+            print(f"\n{'=' * 50}")
+            print(f"Excuse #{i}")
+            print("=" * 50)
+
+        print(f"\n💫 Excuse: {excuse.text}")
+        print(f"\n💡 Recommendation: {excuse.recommendation}")
+
+        if show_score:
+            print(f"\n📊 Quality Score: {excuse.quality_score}/100")
+            print(f"⚠️  Severity: {excuse.severity}")
+            print(f"📁 Category: {excuse.category}")
+
+        if i < len(excuses):
+            print()
+
+
+def main(argv: Optional[list] = None) -> int:
+    """
+    Main CLI entry point.
+
+    Args:
+        argv: Command line arguments (for testing)
+    """
+    parser = build_parser()
     args = parser.parse_args(argv)
 
-    # Print banner unless disabled
+    # Print banner unless disabled / JSON mode
     if not args.no_banner and not args.json:
         print_banner()
 
@@ -105,71 +197,31 @@ Examples:
         # Initialize generator
         generator = CosmicExcuse(language=args.language)
 
-        # Generate haiku if requested
+        # Haiku path
         if args.haiku:
-            haiku = generator.generate_haiku(args.error)
-            if args.json:
-                print(json.dumps({"haiku": haiku, "language": args.language}))
-            else:
-                print("\n🎋 Haiku Excuse:\n")
-                print(haiku)
-                print()
-            return 0
+            return handle_haiku(
+                generator,
+                error=args.error,
+                language=args.language,
+                as_json=bool(args.json),
+            )
 
-        # Generate regular excuses
-        excuses = []
+        # Regular excuses
+        excuses = generate_excuses(
+            generator,
+            error=args.error,
+            category=args.category,
+            count=args.count,
+            min_score=args.min_score,
+        )
 
-        for i in range(args.count):
-            # Generate excuse with minimum score if specified
-            attempts = 0
-            max_attempts = 50
-
-            while attempts < max_attempts:
-                excuse = generator.generate(
-                    error_message=args.error, category=args.category
-                )
-
-                if excuse.quality_score >= args.min_score:
-                    excuses.append(excuse)
-                    break
-
-                attempts += 1
-
-            if attempts >= max_attempts:
-                excuses.append(excuse)  # Use last one even if below score
-
-        # Output results
+        # Output
         if args.json:
-            output = []
-            for excuse in excuses:
-                output.append(
-                    {
-                        "text": excuse.text,
-                        "recommendation": excuse.recommendation,
-                        "severity": excuse.severity,
-                        "category": excuse.category,
-                        "quality_score": excuse.quality_score,
-                        "language": excuse.language,
-                    }
-                )
-            print(json.dumps(output, indent=2, ensure_ascii=False))
+            print_excuses_json(excuses)
         else:
-            for i, excuse in enumerate(excuses, 1):
-                if args.count > 1:
-                    print(f"\n{'=' * 50}")
-                    print(f"Excuse #{i}")
-                    print("=" * 50)
-
-                print(f"\n💫 Excuse: {excuse.text}")
-                print(f"\n💡 Recommendation: {excuse.recommendation}")
-
-                if args.show_score:
-                    print(f"\n📊 Quality Score: {excuse.quality_score}/100")
-                    print(f"⚠️  Severity: {excuse.severity}")
-                    print(f"📁 Category: {excuse.category}")
-
-                if i < len(excuses):
-                    print()
+            print_excuses_text(
+                excuses, count=args.count, show_score=bool(args.show_score)
+            )
 
         return 0
 
