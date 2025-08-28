@@ -3,7 +3,10 @@ Main excuse generator module for CosmicExcuse.
 """
 
 import hashlib
+import itertools
+import os
 import random
+import threading
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -44,6 +47,10 @@ class Excuse:
     metadata: Dict[str, Any]
 
 
+# Monotonic counter to guarantee changing seeds across rapid calls
+_SEED_COUNTER = itertools.count()
+
+
 class ExcuseGenerator:
     """
     Base excuse generator class.
@@ -82,13 +89,13 @@ class ExcuseGenerator:
     def _build_markov_chain(self):
         """Build Markov chain from technical terms."""
         # Get technical terms from data
-        technical_terms = []
+        technical_terms: List[str] = []
         for category in ["quantum", "technical", "ai"]:
             if category in self.data:
                 technical_terms.extend(self.data[category])
 
         # Extract individual words and build corpus
-        corpus = []
+        corpus: List[str] = []
         for term in technical_terms:
             corpus.extend(term.split())
 
@@ -113,22 +120,22 @@ class ExcuseGenerator:
         """
         severity = self.analyzer.analyze(error_message)
 
-        # Generate quantum seed for reproducible randomness
+        # Create a local RNG seeded with high-entropy seed
         quantum_seed = self._generate_quantum_seed(error_message)
-        random.seed(quantum_seed)
+        rng = random.Random(quantum_seed)
 
         # Select categories
         if category and category in self.data:
             primary_category = category
         else:
-            primary_category = random.choice(list(self.data.keys()))
+            primary_category = rng.choice(list(self.data.keys()))
 
         # Ensure we don't pick recommendations or connectors as primary
         while primary_category in ["recommendations", "connectors", "intensifiers"]:
-            primary_category = random.choice(list(self.data.keys()))
+            primary_category = rng.choice(list(self.data.keys()))
 
         # Get excuse components
-        primary_excuse = random.choice(self.data[primary_category])
+        primary_excuse = rng.choice(self.data[primary_category])
 
         # Get secondary category
         available_categories = [
@@ -137,16 +144,16 @@ class ExcuseGenerator:
             if k
             not in [primary_category, "recommendations", "connectors", "intensifiers"]
         ]
-        secondary_category = random.choice(available_categories)
-        secondary_excuse = random.choice(self.data[secondary_category])
+        secondary_category = rng.choice(available_categories)
+        secondary_excuse = rng.choice(self.data[secondary_category])
 
         # Get intensifier based on severity
-        intensifier = self._get_intensifier(severity)
+        intensifier = self._get_intensifier(severity, rng)
 
         # Get connector
-        connector = random.choice(self.data.get("connectors", ["which caused"]))
+        connector = rng.choice(self.data.get("connectors", ["which caused"]))
 
-        # Generate Markov nonsense
+        # Generate Markov nonsense (uses module RNG internally; that's fine)
         markov_phrase = self.markov.generate(length=5)
 
         # Construct the excuse
@@ -160,7 +167,7 @@ class ExcuseGenerator:
         )
 
         # Get recommendation
-        recommendation = random.choice(
+        recommendation = rng.choice(
             self.data.get("recommendations", ["Try turning it off and on again"])
         )
 
@@ -174,7 +181,7 @@ class ExcuseGenerator:
             severity=severity,
             category=primary_category,
             quality_score=quality_score,
-            quantum_probability=random.random(),
+            quantum_probability=rng.random(),
             language=self.language,
             timestamp=time.time(),
             metadata={
@@ -188,12 +195,20 @@ class ExcuseGenerator:
         return excuse
 
     def _generate_quantum_seed(self, error_message: str) -> int:
-        """Generate a 'quantum' seed from the error message."""
-        hash_input = f"{error_message}{time.time()}"
-        hash_hex = hashlib.md5(hash_input.encode()).hexdigest()[:8]
-        return int(hash_hex, 16)
+        """
+        Generate a high-entropy 64-bit seed that changes on every call,
+        even when invoked multiple times within the same OS clock tick.
+        """
+        t1 = time.time_ns()
+        t2 = time.perf_counter_ns()  # monotonic, high-res
+        pid = os.getpid()
+        tid = threading.get_ident()
+        ctr = next(_SEED_COUNTER)
+        h = hashlib.blake2b(digest_size=8)
+        h.update(f"{error_message}|{t1}|{t2}|{pid}|{tid}|{ctr}".encode("utf-8"))
+        return int.from_bytes(h.digest(), "big")
 
-    def _get_intensifier(self, severity: str) -> str:
+    def _get_intensifier(self, severity: str, rng: random.Random) -> str:
         """Get an intensifier based on severity."""
         intensifiers = self.data.get("intensifiers", {})
 
@@ -202,7 +217,7 @@ class ExcuseGenerator:
         else:
             severity_intensifiers = ["definitely"]
 
-        return random.choice(severity_intensifiers)
+        return rng.choice(severity_intensifiers)
 
     def _calculate_quality_score(self, excuse_text: str, seed: int) -> int:
         """Calculate a 'quality score' for the excuse."""
@@ -219,15 +234,10 @@ class ExcuseGenerator:
 
     def generate_batch(self, count: int = 5) -> List[Excuse]:
         """
-        Generate multiple excuses.
-
-        Args:
-            count: Number of excuses to generate
-
-        Returns:
-            List of Excuse objects
+        Generate multiple excuses, ensuring textual uniqueness.
         """
-        excuses = []
+        excuses: List[Excuse] = []
+        seen: set[str] = set()
 
         # Sample error messages for variety
         sample_errors = [
@@ -241,10 +251,15 @@ class ExcuseGenerator:
             "MemoryError: Out of memory",
         ]
 
-        for _ in range(count):
+        attempts = 0
+        max_attempts = count * 10
+        while len(excuses) < count and attempts < max_attempts:
             error = random.choice(sample_errors)
             excuse = self.generate(error)
-            excuses.append(excuse)
+            if excuse.text not in seen:
+                seen.add(excuse.text)
+                excuses.append(excuse)
+            attempts += 1
 
         return excuses
 
