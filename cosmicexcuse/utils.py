@@ -2,12 +2,12 @@
 Utility functions for CosmicExcuse.
 """
 
-import random
 import hashlib
+import random
 import re
 import time
-from typing import List, Optional, Tuple, Dict, Any
 from datetime import datetime, timezone
+from typing import Any, Dict, List, Optional, Tuple
 
 
 def generate_seed(input_string: str, salt: Optional[str] = None) -> int:
