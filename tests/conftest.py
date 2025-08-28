@@ -52,11 +52,18 @@ def temp_data_path(tmp_path):
         "category": "test",
         "language": "en",
         "version": "1.0.0",
-        "excuses": ["test excuse 1", "test excuse 2"]
+        "excuses": ["test excuse 1", "test excuse 2"],
     }
 
-    for category in ["quantum", "cosmic", "ai", "technical", "blame",
-                     "recommendations", "connectors"]:
+    for category in [
+        "quantum",
+        "cosmic",
+        "ai",
+        "technical",
+        "blame",
+        "recommendations",
+        "connectors",
+    ]:
         with open(data_dir / f"{category}.json", "w") as f:
             json.dump(test_data, f)
 
@@ -64,14 +71,14 @@ def temp_data_path(tmp_path):
     intensifiers = {
         "mild": ["slightly"],
         "medium": ["definitely"],
-        "severe": ["catastrophically"]
+        "severe": ["catastrophically"],
     }
 
     intensifiers_data = {
         "category": "intensifiers",
         "language": "en",
         "version": "1.0.0",
-        "excuses": intensifiers
+        "excuses": intensifiers,
     }
 
     with open(data_dir / "intensifiers.json", "w") as f:

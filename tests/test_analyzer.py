@@ -48,7 +48,7 @@ class TestSeverityAnalyzer:
             "FATAL ERROR: System crash!!!",
             "CRITICAL: Database corrupted",
             "PANIC: Kernel panic detected",
-            "Segmentation fault (core dumped)"
+            "Segmentation fault (core dumped)",
         ]
 
         for error in severe_errors:

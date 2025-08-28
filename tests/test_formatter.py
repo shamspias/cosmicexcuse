@@ -27,7 +27,7 @@ class TestExcuseFormatter:
             intensifier="definitely",
             connector="which caused",
             markov_phrase="technical chaos",
-            severity="medium"
+            severity="medium",
         )
 
         assert "quantum interference" in result
@@ -45,7 +45,7 @@ class TestExcuseFormatter:
             intensifier="very",
             connector="causing",
             markov_phrase="",
-            severity="mild"
+            severity="mild",
         )
 
         assert len(result) <= 50
@@ -77,7 +77,7 @@ class TestMarkdownFormatter:
             "severity": "medium",
             "category": "quantum",
             "quality_score": 75,
-            "recommendation": "Try again"
+            "recommendation": "Try again",
         }
 
         result = formatter.format(data)
@@ -98,7 +98,7 @@ class TestJSONFormatter:
             "text": "Test excuse",
             "severity": "mild",
             "category": "test",
-            "quality_score": 50
+            "quality_score": 50,
         }
 
         result = formatter.format(data)

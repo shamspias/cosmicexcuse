@@ -30,9 +30,7 @@ def main(argv: Optional[list] = None):
         argv: Command line arguments (for testing)
     """
     parser = argparse.ArgumentParser(
-        description=(
-            "Generate quantum-grade excuses for your code failures"
-        ),
+        description=("Generate quantum-grade excuses for your code failures"),
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -45,9 +43,7 @@ Examples:
     )
 
     parser.add_argument(
-        "-v", "--version",
-        action="version",
-        version=f"CosmicExcuse {__version__}"
+        "-v", "--version", action="version", version=f"CosmicExcuse {__version__}"
     )
 
     parser.add_argument(
@@ -68,10 +64,7 @@ Examples:
     )
 
     parser.add_argument(
-        "-c", "--count",
-        type=int,
-        default=1,
-        help="Number of excuses to generate"
+        "-c", "--count", type=int, default=1, help="Number of excuses to generate"
     )
 
     parser.add_argument(
@@ -82,27 +75,17 @@ Examples:
     )
 
     parser.add_argument(
-        "--haiku",
-        action="store_true",
-        help="Generate excuse in haiku format"
+        "--haiku", action="store_true", help="Generate excuse in haiku format"
+    )
+
+    parser.add_argument("--json", action="store_true", help="Output in JSON format")
+
+    parser.add_argument(
+        "--no-banner", action="store_true", help="Skip the banner display"
     )
 
     parser.add_argument(
-        "--json",
-        action="store_true",
-        help="Output in JSON format"
-    )
-
-    parser.add_argument(
-        "--no-banner",
-        action="store_true",
-        help="Skip the banner display"
-    )
-
-    parser.add_argument(
-        "--show-score",
-        action="store_true",
-        help="Show quality score for excuses"
+        "--show-score", action="store_true", help="Show quality score for excuses"
     )
 
     parser.add_argument(
@@ -126,9 +109,7 @@ Examples:
         if args.haiku:
             haiku = generator.generate_haiku(args.error)
             if args.json:
-                print(json.dumps(
-                    {"haiku": haiku, "language": args.language}
-                ))
+                print(json.dumps({"haiku": haiku, "language": args.language}))
             else:
                 print("\n🎋 Haiku Excuse:\n")
                 print(haiku)
@@ -145,8 +126,7 @@ Examples:
 
             while attempts < max_attempts:
                 excuse = generator.generate(
-                    error_message=args.error,
-                    category=args.category
+                    error_message=args.error, category=args.category
                 )
 
                 if excuse.quality_score >= args.min_score:
