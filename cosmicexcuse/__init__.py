@@ -20,16 +20,16 @@ License: MIT
 """
 
 from cosmicexcuse.__version__ import __version__
-from cosmicexcuse.generator import CosmicExcuse, ExcuseGenerator
 from cosmicexcuse.analyzer import SeverityAnalyzer
-from cosmicexcuse.markov import MarkovChain
-from cosmicexcuse.formatter import ExcuseFormatter, HaikuFormatter
-from cosmicexcuse.leaderboard import ExcuseLeaderboard
 from cosmicexcuse.exceptions import (
     CosmicExcuseError,
-    LanguageNotSupportedError,
     DataLoadError,
+    LanguageNotSupportedError,
 )
+from cosmicexcuse.formatter import ExcuseFormatter, HaikuFormatter
+from cosmicexcuse.generator import CosmicExcuse, ExcuseGenerator
+from cosmicexcuse.leaderboard import ExcuseLeaderboard
+from cosmicexcuse.markov import MarkovChain
 
 __all__ = [
     "__version__",
