@@ -22,7 +22,7 @@ jobs:
           python-version: '3.11'
 
       - name: Cache pip packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-lint-${{ hashFiles('requirements*.txt') }}
@@ -75,7 +75,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Cache pip packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cache/pip
@@ -137,7 +137,7 @@ jobs:
           python -c "from cosmicexcuse import CosmicExcuse; print(CosmicExcuse().generate().text)"
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist/
@@ -203,7 +203,7 @@ jobs:
 
       - name: Upload documentation
         if: ${{ hashFiles('docs/_build/html/**') != '' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: documentation
           path: docs/_build/html/
