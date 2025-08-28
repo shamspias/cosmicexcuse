@@ -2,8 +2,10 @@
 Error severity analyzer module.
 """
 
+from __future__ import annotations
+
 import re
-from typing import Dict  # Removed unused List import
+from typing import Any, Dict, Iterable, List, Tuple
 
 
 class SeverityAnalyzer:
@@ -11,9 +13,9 @@ class SeverityAnalyzer:
     Analyzes error messages to determine severity level.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the severity analyzer."""
-        self.severity_keywords = {
+        self.severity_keywords: Dict[str, List[str]] = {
             "severe": [
                 "fatal",
                 "critical",
@@ -76,7 +78,7 @@ class SeverityAnalyzer:
             ],
         }
 
-        self.severity_patterns = {
+        self.severity_patterns: Dict[str, List[str]] = {
             "severe": [
                 r"FATAL",
                 r"CRITICAL",
@@ -110,6 +112,14 @@ class SeverityAnalyzer:
             ],
         }
 
+        self._pattern_weights = {"severe": 5, "medium": 3, "mild": 1}
+        self._keyword_weights = {"severe": 3, "medium": 2, "mild": 1}
+        self._uppercase_exclusions = {"CPU", "RAM", "API", "URL", "ID"}
+
+    # -------------------------
+    # Public API
+    # -------------------------
+
     def analyze(self, error_message: str) -> str:
         """
         Analyze error message severity.
@@ -123,76 +133,25 @@ class SeverityAnalyzer:
         if not error_message:
             return "mild"
 
-        message_lower = error_message.lower()
+        msg_lower = error_message.lower()
 
-        # Calculate severity score
-        score = 0
-        severity_found = None
+        pattern_score, top_pattern = self._score_patterns(error_message)
 
-        # Check patterns first (they are more specific)
-        for severity, patterns in self.severity_patterns.items():
-            for pattern in patterns:
-                if re.search(pattern, error_message, re.IGNORECASE):
-                    if severity == "severe":
-                        score += 5
-                        severity_found = "severe"
-                    elif severity == "medium":
-                        score += 3
-                        if not severity_found:
-                            severity_found = "medium"
-                    else:  # mild
-                        score += 1
-                        if not severity_found:
-                            severity_found = "mild"
-
-        # If pattern matched, prioritize that result
-        if severity_found and score >= 5:
+        # Pattern priority short-circuits (preserve original behavior)
+        if top_pattern == "severe" and pattern_score >= 5:
             return "severe"
-        elif severity_found == "mild" and score <= 2:
+        if top_pattern == "mild" and pattern_score <= 2:
             return "mild"
 
-        # Check keywords
-        for severity, keywords in self.severity_keywords.items():
-            for keyword in keywords:
-                if keyword in message_lower:
-                    if severity == "severe":
-                        score += 3
-                    elif severity == "medium":
-                        score += 2
-                    else:  # mild
-                        score += 1
+        total = 0.0
+        total += pattern_score
+        total += self._score_keywords(msg_lower)
+        total += self._score_exclamations(error_message)
+        total += self._score_uppercase(error_message)
 
-        # Count exclamation marks
-        exclamation_count = error_message.count("!")
-        if exclamation_count >= 3:
-            score += 3
-        elif exclamation_count >= 2:
-            score += 2
-        elif exclamation_count >= 1:
-            score += 1
+        return self._score_to_severity(total)
 
-        # Count uppercase words (excluding common acronyms)
-        words = error_message.split()
-        uppercase_words = len(
-            [
-                w
-                for w in words
-                if w.isupper()
-                and len(w) > 2
-                and w not in ["CPU", "RAM", "API", "URL", "ID"]
-            ]
-        )
-        score += uppercase_words * 0.5
-
-        # Determine severity based on score
-        if score >= 8:
-            return "severe"
-        elif score >= 4:
-            return "medium"
-        else:
-            return "mild"
-
-    def get_severity_details(self, error_message: str) -> Dict[str, any]:
+    def get_severity_details(self, error_message: str) -> Dict[str, Any]:
         """
         Get detailed severity analysis.
 
@@ -203,26 +162,99 @@ class SeverityAnalyzer:
             Dictionary with severity details
         """
         severity = self.analyze(error_message)
-        message_lower = error_message.lower()
+        msg_lower = error_message.lower()
 
-        found_keywords = []
-        for keywords in self.severity_keywords.values():
-            for keyword in keywords:
-                if keyword in message_lower:
-                    found_keywords.append(keyword)
+        found_keywords = self._find_keywords(msg_lower)
+        found_patterns = self._find_patterns(error_message)
 
-        found_patterns = []
-        for patterns in self.severity_patterns.values():
-            for pattern in patterns:
-                if re.search(pattern, error_message, re.IGNORECASE):
-                    found_patterns.append(pattern)
+        uppercase_ratio = sum(1 for c in error_message if c.isupper()) / max(
+            len(error_message), 1
+        )
 
         return {
             "severity": severity,
             "found_keywords": found_keywords,
             "found_patterns": found_patterns,
             "exclamation_count": error_message.count("!"),
-            "uppercase_ratio": sum(1 for c in error_message if c.isupper())
-            / max(len(error_message), 1),
+            "uppercase_ratio": uppercase_ratio,
             "message_length": len(error_message),
         }
+
+    # -------------------------
+    # Internal helpers
+    # -------------------------
+
+    def _score_patterns(self, message: str) -> Tuple[int, str | None]:
+        hits: List[Tuple[str, str]] = [
+            (sev, pat)
+            for sev, pats in self.severity_patterns.items()
+            for pat in pats
+            if re.search(pat, message, re.IGNORECASE)
+        ]
+        score = sum(self._pattern_weights[sev] for sev, _ in hits)
+        top = self._pick_top_severity(sev for sev, _ in hits)
+        return score, top
+
+    def _score_keywords(self, msg_lower: str) -> int:
+        return sum(
+            self._keyword_weights[sev]
+            for sev, kws in self.severity_keywords.items()
+            for kw in kws
+            if kw in msg_lower
+        )
+
+    @staticmethod
+    def _score_exclamations(message: str) -> int:
+        n = message.count("!")
+        if n >= 3:
+            return 3
+        if n == 2:
+            return 2
+        if n == 1:
+            return 1
+        return 0
+
+    def _score_uppercase(self, message: str) -> float:
+        words = message.split()
+        uppercase_words = [
+            w
+            for w in words
+            if w.isupper() and len(w) > 2 and w not in self._uppercase_exclusions
+        ]
+        return len(uppercase_words) * 0.5
+
+    @staticmethod
+    def _score_to_severity(score: float) -> str:
+        if score >= 8:
+            return "severe"
+        if score >= 4:
+            return "medium"
+        return "mild"
+
+    def _find_keywords(self, msg_lower: str) -> List[str]:
+        return [
+            kw
+            for kws in self.severity_keywords.values()
+            for kw in kws
+            if kw in msg_lower
+        ]
+
+    def _find_patterns(self, message: str) -> List[str]:
+        return [
+            pat
+            for pats in self.severity_patterns.values()
+            for pat in pats
+            if re.search(pat, message, re.IGNORECASE)
+        ]
+
+    @staticmethod
+    def _pick_top_severity(levels: Iterable[str]) -> str | None:
+        order = {"mild": 0, "medium": 1, "severe": 2}
+        top = -1
+        top_sev = None
+        for sev in levels:
+            val = order.get(sev, -1)
+            if val > top:
+                top = val
+                top_sev = sev
+        return top_sev
