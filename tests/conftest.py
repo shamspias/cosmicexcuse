@@ -1,6 +1,7 @@
 """Pytest configuration and fixtures."""
 
 import json
+
 import pytest
 
 from cosmicexcuse import CosmicExcuse, ExcuseGenerator

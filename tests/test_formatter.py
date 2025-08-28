@@ -1,7 +1,8 @@
 """Tests for formatter module."""
 
-import pytest
 import json
+
+import pytest
 
 from cosmicexcuse.formatter import (
     ExcuseFormatter,

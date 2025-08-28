@@ -3,12 +3,12 @@ Basic usage examples for CosmicExcuse package.
 """
 
 from cosmicexcuse import CosmicExcuse, generate
-from cosmicexcuse.leaderboard import ExcuseLeaderboard
+from cosmicexcuse.analyzer import SeverityAnalyzer
 from cosmicexcuse.formatter import (
     MarkdownFormatter,
     TwitterFormatter,
 )
-from cosmicexcuse.analyzer import SeverityAnalyzer
+from cosmicexcuse.leaderboard import ExcuseLeaderboard
 
 
 def basic_generation():

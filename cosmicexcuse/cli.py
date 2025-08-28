@@ -5,7 +5,7 @@ Command-line interface for CosmicExcuse.
 import argparse
 import json
 import sys
-from typing import Optional, List, Any
+from typing import Any, List, Optional
 
 from cosmicexcuse import CosmicExcuse, __version__
 from cosmicexcuse.exceptions import CosmicExcuseError
