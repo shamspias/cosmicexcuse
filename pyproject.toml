@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cosmicexcuse"
-version = "0.0.1"
+version = "0.0.2"
 authors = [
     { name = "Shamsuddin Ahmed", email = "info@shamspias.com" },
 ]
@@ -75,3 +75,8 @@ exclude_lines = [
     "raise NotImplementedError",
     "if __name__ == .__main__.:",
 ]
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["cosmicexcuse"]
