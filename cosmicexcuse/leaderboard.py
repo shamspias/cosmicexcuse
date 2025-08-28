@@ -3,12 +3,12 @@ Excuse leaderboard module for tracking and ranking excuses.
 """
 
 import json
-import time
-from typing import List, Dict, Optional, Any
-from dataclasses import dataclass, field, asdict
-from pathlib import Path
 import sqlite3
+import time
 from contextlib import contextmanager
+from dataclasses import asdict, dataclass, field
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 
 @dataclass
@@ -456,14 +456,14 @@ class GlobalLeaderboard(ExcuseLeaderboard):
 
             conn.execute(
                 """
-                CREATE INDEX IF NOT EXISTS idx_quality 
+                CREATE INDEX IF NOT EXISTS idx_quality
                 ON excuses(quality_score DESC)
             """
             )
 
             conn.execute(
                 """
-                CREATE INDEX IF NOT EXISTS idx_votes 
+                CREATE INDEX IF NOT EXISTS idx_votes
                 ON excuses(upvotes DESC, downvotes ASC)
             """
             )
