@@ -1,0 +1,48 @@
+
+[tox]
+envlist = py{39,310,311,312}, lint, docs, type
+isolated_build = true
+skip_missing_interpreters = true
+
+[testenv]
+deps =
+    pytest>=7.0.0
+    pytest-cov>=3.0.0
+    pytest-xdist>=2.5.0
+commands =
+    pytest {posargs:tests} -v --cov=cosmicexcuse --cov-report=term-missing
+
+[testenv:lint]
+skip_install = false
+deps =
+    black
+    flake8
+    isort
+commands =
+    black --check cosmicexcuse tests
+    isort --check-only cosmicexcuse tests
+    flake8 cosmicexcuse tests
+
+[testenv:type]
+deps =
+    mypy
+    types-setuptools
+commands =
+    mypy cosmicexcuse --ignore-missing-imports
+
+[testenv:format]
+skip_install = true
+deps =
+    black
+    isort
+commands =
+    black cosmicexcuse tests
+    isort cosmicexcuse tests
+
+[testenv:docs]
+changedir = docs
+deps =
+    sphinx
+    sphinx-rtd-theme
+commands =
+    sphinx-build -W -b html -d {envtmpdir}/doctrees . {envtmpdir}/html
