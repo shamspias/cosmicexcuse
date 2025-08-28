@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Basic usage examples for CosmicExcuse package.
 """
@@ -6,10 +5,8 @@ Basic usage examples for CosmicExcuse package.
 from cosmicexcuse import CosmicExcuse, generate
 from cosmicexcuse.leaderboard import ExcuseLeaderboard
 from cosmicexcuse.formatter import (
-    ExcuseFormatter,
-    HaikuFormatter,
     MarkdownFormatter,
-    TwitterFormatter
+    TwitterFormatter,
 )
 from cosmicexcuse.analyzer import SeverityAnalyzer
 
@@ -25,20 +22,20 @@ def basic_generation():
 
     # Generate simple excuse
     excuse = generator.generate()
-    print(f"\n📝 Random Excuse:")
+    print("\n📝 Random Excuse:")
     print(f"   {excuse.text}")
-    print(f"   💡 Tip: {excuse.recommendation}")
+    print("   💡 Tip: {excuse.recommendation}")
 
     # Generate for specific error
     excuse = generator.generate("NullPointerException in UserService.java")
-    print(f"\n🎯 Specific Error Excuse:")
+    print("\n🎯 Specific Error Excuse:")
     print(f"   {excuse.text}")
     print(f"   Severity: {excuse.severity}")
-    print(f"   Score: {excuse.quality_score}/100")
+    print("   Score: {excuse.quality_score}/100")
 
     # Generate with category
-    excuse = generator.generate(category='quantum')
-    print(f"\n🔬 Quantum Category Excuse:")
+    excuse = generator.generate(category="quantum")
+    print("\n🔬 Quantum Category Excuse:")
     print(f"   {excuse.text}")
 
 
@@ -80,7 +77,7 @@ def haiku_mode():
     haiku = generator.generate_haiku("Memory leak detected")
 
     print("\n🎋 Error Haiku:")
-    print("   " + haiku.replace('\n', '\n   '))
+    print("   " + haiku.replace("\n", "\n   "))
 
 
 def severity_analysis():
@@ -95,7 +92,7 @@ def severity_analysis():
     errors = [
         "Warning: deprecated function used",
         "ERROR: Connection timeout",
-        "FATAL: System crash! Database corrupted!!!"
+        "FATAL: System crash! Database corrupted!!!",
     ]
 
     for error in errors:
@@ -118,22 +115,24 @@ def formatting_examples():
 
     # Markdown format
     md_formatter = MarkdownFormatter()
-    md_output = md_formatter.format({
-        'text': excuse.text,
-        'recommendation': excuse.recommendation,
-        'severity': excuse.severity,
-        'category': excuse.category,
-        'quality_score': excuse.quality_score,
-        'quantum_probability': excuse.quantum_probability,
-        'metadata': excuse.metadata
-    })
+    md_output = md_formatter.format(
+        {
+            "text": excuse.text,
+            "recommendation": excuse.recommendation,
+            "severity": excuse.severity,
+            "category": excuse.category,
+            "quality_score": excuse.quality_score,
+            "quantum_probability": excuse.quantum_probability,
+            "metadata": excuse.metadata,
+        }
+    )
 
     print("\n📄 Markdown Format:")
     print(md_output[:300] + "...")
 
     # Twitter format
     twitter_formatter = TwitterFormatter()
-    tweet = twitter_formatter.format({'text': excuse.text})
+    tweet = twitter_formatter.format({"text": excuse.text})
 
     print(f"\n🐦 Twitter Format ({len(tweet)} chars):")
     print(f"   {tweet}")
@@ -163,7 +162,7 @@ def leaderboard_examples():
 
     # Get statistics
     stats = leaderboard.get_stats()
-    print(f"\n📈 Statistics:")
+    print("\n📈 Statistics:")
     print(f"   Total excuses: {stats['total_excuses']}")
     print(f"   Average quality: {stats['average_quality']:.1f}")
     print(f"   Categories: {stats['categories']}")
@@ -189,7 +188,6 @@ def history_tracking():
         print(f"   {best.text}")
 
     # Export history
-    history_json = generator.export_history(format='json')
     print(f"\n📤 Exported {len(generator.history)} excuses to JSON")
 
     # Clear history
@@ -204,13 +202,13 @@ def multi_language():
     print("=" * 60)
 
     # English
-    en_gen = CosmicExcuse(language='en')
+    en_gen = CosmicExcuse(language="en")
     en_excuse = en_gen.generate("Database error")
     print(f"\n🇬🇧 English: {en_excuse.text}")
 
     # Bengali (if available)
     try:
-        bn_gen = CosmicExcuse(language='bn')
+        bn_gen = CosmicExcuse(language="bn")
         bn_excuse = bn_gen.generate("ডাটাবেস ত্রুটি")
         print(f"\n🇧🇩 Bengali: {bn_excuse.text}")
     except Exception as e:
@@ -268,7 +266,7 @@ def main():
         ("Leaderboard System", leaderboard_examples),
         ("History Tracking", history_tracking),
         ("Multi-Language", multi_language),
-        ("Error Handler", error_handler_integration)
+        ("Error Handler", error_handler_integration),
     ]
 
     for name, func in examples:
