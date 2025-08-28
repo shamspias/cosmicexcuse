@@ -23,17 +23,6 @@ from cosmicexcuse.markov import MarkovChain
 class Excuse:
     """
     Represents a generated excuse with metadata.
-
-    Attributes:
-        text: The main excuse text
-        recommendation: Suggested action to fix the issue
-        severity: Detected severity level
-        category: Primary excuse category used
-        quality_score: Calculated quality score (0-100)
-        quantum_probability: Random quantum probability
-        language: Language code used
-        timestamp: Generation timestamp
-        metadata: Additional metadata
     """
 
     text: str
@@ -61,13 +50,6 @@ class ExcuseGenerator:
     def __init__(self, language: str = "en", data_path: Optional[Path] = None):
         """
         Initialize the excuse generator.
-
-        Args:
-            language: Language code ('en' for English, 'bn' for Bengali)
-            data_path: Optional custom path to data directory
-
-        Raises:
-            LanguageNotSupportedError: If language is not supported
         """
         if language not in self.SUPPORTED_LANGUAGES:
             raise LanguageNotSupportedError(
@@ -88,13 +70,11 @@ class ExcuseGenerator:
 
     def _build_markov_chain(self):
         """Build Markov chain from technical terms."""
-        # Get technical terms from data
         technical_terms: List[str] = []
         for category in ["quantum", "technical", "ai"]:
             if category in self.data:
                 technical_terms.extend(self.data[category])
 
-        # Extract individual words and build corpus
         corpus: List[str] = []
         for term in technical_terms:
             corpus.extend(term.split())
@@ -109,33 +89,24 @@ class ExcuseGenerator:
     ) -> Excuse:
         """
         Generate an excuse for the given error.
-
-        Args:
-            error_message: The error message to analyze
-            context: Optional context about what was being done
-            category: Optional specific category to use
-
-        Returns:
-            An Excuse object with the generated excuse and metadata
         """
         severity = self.analyzer.analyze(error_message)
 
-        # Create a local RNG seeded with high-entropy seed
+        # High-entropy seed used only for scoring/metadata; do NOT reseed RNG
         quantum_seed = self._generate_quantum_seed(error_message)
-        rng = random.Random(quantum_seed)
 
-        # Select categories
+        # Select categories using module-level random.choice (so tests can patch it)
         if category and category in self.data:
             primary_category = category
         else:
-            primary_category = rng.choice(list(self.data.keys()))
+            primary_category = random.choice(list(self.data.keys()))
 
         # Ensure we don't pick recommendations or connectors as primary
         while primary_category in ["recommendations", "connectors", "intensifiers"]:
-            primary_category = rng.choice(list(self.data.keys()))
+            primary_category = random.choice(list(self.data.keys()))
 
         # Get excuse components
-        primary_excuse = rng.choice(self.data[primary_category])
+        primary_excuse = random.choice(self.data[primary_category])
 
         # Get secondary category
         available_categories = [
@@ -144,16 +115,16 @@ class ExcuseGenerator:
             if k
             not in [primary_category, "recommendations", "connectors", "intensifiers"]
         ]
-        secondary_category = rng.choice(available_categories)
-        secondary_excuse = rng.choice(self.data[secondary_category])
+        secondary_category = random.choice(available_categories)
+        secondary_excuse = random.choice(self.data[secondary_category])
 
         # Get intensifier based on severity
-        intensifier = self._get_intensifier(severity, rng)
+        intensifier = self._get_intensifier(severity)
 
         # Get connector
-        connector = rng.choice(self.data.get("connectors", ["which caused"]))
+        connector = random.choice(self.data.get("connectors", ["which caused"]))
 
-        # Generate Markov nonsense (uses module RNG internally; that's fine)
+        # Generate Markov nonsense
         markov_phrase = self.markov.generate(length=5)
 
         # Construct the excuse
@@ -167,7 +138,7 @@ class ExcuseGenerator:
         )
 
         # Get recommendation
-        recommendation = rng.choice(
+        recommendation = random.choice(
             self.data.get("recommendations", ["Try turning it off and on again"])
         )
 
@@ -181,7 +152,7 @@ class ExcuseGenerator:
             severity=severity,
             category=primary_category,
             quality_score=quality_score,
-            quantum_probability=rng.random(),
+            quantum_probability=random.random(),
             language=self.language,
             timestamp=time.time(),
             metadata={
@@ -208,7 +179,7 @@ class ExcuseGenerator:
         h.update(f"{error_message}|{t1}|{t2}|{pid}|{tid}|{ctr}".encode("utf-8"))
         return int.from_bytes(h.digest(), "big")
 
-    def _get_intensifier(self, severity: str, rng: random.Random) -> str:
+    def _get_intensifier(self, severity: str) -> str:
         """Get an intensifier based on severity."""
         intensifiers = self.data.get("intensifiers", {})
 
@@ -217,14 +188,12 @@ class ExcuseGenerator:
         else:
             severity_intensifiers = ["definitely"]
 
-        return rng.choice(severity_intensifiers)
+        return random.choice(severity_intensifiers)
 
     def _calculate_quality_score(self, excuse_text: str, seed: int) -> int:
         """Calculate a 'quality score' for the excuse."""
-        # Completely arbitrary scoring algorithm
         score = len(excuse_text) * seed % 100
 
-        # Bonus points for certain keywords
         bonus_words = ["quantum", "cosmic", "AI", "blockchain", "neural"]
         for word in bonus_words:
             if word.lower() in excuse_text.lower():
@@ -266,16 +235,9 @@ class ExcuseGenerator:
     def generate_haiku(self, error_message: str = "") -> str:
         """
         Generate an excuse in haiku format.
-
-        Args:
-            error_message: Optional error message
-
-        Returns:
-            A haiku-formatted excuse string
         """
         haiku_formatter = HaikuFormatter()
 
-        # Get components for haiku
         components = {
             "line_5_1": random.choice(
                 self.data.get("quantum", ["Quantum states collapse"])
@@ -296,18 +258,6 @@ class CosmicExcuse(ExcuseGenerator):
     """
 
     def __init__(self, language: str = "en", data_path: Optional[Path] = None):
-        """
-        Initialize CosmicExcuse generator.
-
-        Args:
-            language: Language code ('en' or 'bn')
-            data_path: Optional custom data path
-
-        Example:
-            >>> generator = CosmicExcuse()
-            >>> excuse = generator.generate("Database error")
-            >>> print(excuse.text)
-        """
         super().__init__(language, data_path)
         self.history: List[Excuse] = []
 
@@ -318,35 +268,16 @@ class CosmicExcuse(ExcuseGenerator):
         category: Optional[str] = None,
         save_history: bool = True,
     ) -> Excuse:
-        """
-        Generate an excuse and optionally save to history.
-
-        Args:
-            error_message: The error to generate excuse for
-            context: Optional context
-            category: Optional category preference
-            save_history: Whether to save to history
-
-        Returns:
-            Generated Excuse object
-        """
+        """Generate an excuse and optionally save to history."""
         excuse = super().generate(error_message, context, category)
-
         if save_history:
             self.history.append(excuse)
-
         return excuse
 
     def get_best_excuse(self) -> Optional[Excuse]:
-        """
-        Get the highest quality excuse from history.
-
-        Returns:
-            Best Excuse object or None if no history
-        """
+        """Get the highest quality excuse from history."""
         if not self.history:
             return None
-
         return max(self.history, key=lambda x: x.quality_score)
 
     def clear_history(self):
@@ -354,15 +285,7 @@ class CosmicExcuse(ExcuseGenerator):
         self.history.clear()
 
     def export_history(self, format: str = "json") -> Union[str, List[Dict]]:
-        """
-        Export history in specified format.
-
-        Args:
-            format: Export format ('json' or 'text')
-
-        Returns:
-            Formatted history
-        """
+        """Export history in specified format."""
         if format == "json":
             return [
                 {
