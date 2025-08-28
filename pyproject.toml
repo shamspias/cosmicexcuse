@@ -46,6 +46,11 @@ docs = [
     "sphinx-rtd-theme>=3.0.2",
 ]
 
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["cosmicexcuse"]
+
 [tool.black]
 line-length = 88
 target-version = ['py39', 'py310', 'py311']
@@ -75,8 +80,3 @@ exclude_lines = [
     "raise NotImplementedError",
     "if __name__ == .__main__.:",
 ]
-
-[tool.isort]
-profile = "black"
-line_length = 88
-known_first_party = ["cosmicexcuse"]
