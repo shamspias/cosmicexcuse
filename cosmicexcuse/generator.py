@@ -2,18 +2,18 @@
 Main excuse generator module for CosmicExcuse.
 """
 
-import random
 import hashlib
+import random
 import time
-from typing import Dict, List, Optional, Union, Any
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Union
 
-from cosmicexcuse.data.loader import DataLoader
 from cosmicexcuse.analyzer import SeverityAnalyzer
-from cosmicexcuse.markov import MarkovChain
-from cosmicexcuse.formatter import ExcuseFormatter, HaikuFormatter
+from cosmicexcuse.data.loader import DataLoader
 from cosmicexcuse.exceptions import LanguageNotSupportedError
+from cosmicexcuse.formatter import ExcuseFormatter, HaikuFormatter
+from cosmicexcuse.markov import MarkovChain
 
 
 @dataclass
