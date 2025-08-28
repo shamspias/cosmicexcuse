@@ -3,9 +3,9 @@ Data loader module for loading JSON excuse data.
 """
 
 import json
-from pathlib import Path
-from typing import Dict, List, Any, Optional
 import warnings
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 from cosmicexcuse.exceptions import DataLoadError, LanguageNotSupportedError
 
@@ -185,7 +185,8 @@ class DataLoader:
                 else:
                     validation[category] = False
 
-            except:
+            except Exception as e:
+                print(str(e))
                 validation[category] = False
 
         return validation
