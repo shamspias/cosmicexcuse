@@ -2,14 +2,15 @@
 Tests for the excuse generator module.
 """
 
-import pytest
 import time
 from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import MagicMock, Mock, patch
+
+import pytest
 
 from cosmicexcuse import CosmicExcuse, ExcuseGenerator
-from cosmicexcuse.generator import Excuse
 from cosmicexcuse.exceptions import LanguageNotSupportedError
+from cosmicexcuse.generator import Excuse
 
 
 class TestExcuseGenerator:
