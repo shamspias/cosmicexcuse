@@ -4,8 +4,8 @@ Excuse formatting module for different output formats.
 
 import random
 import textwrap
-from typing import Dict, List, Optional, Any
 from abc import ABC, abstractmethod
+from typing import Any, Dict, List, Optional
 
 
 class BaseFormatter(ABC):
@@ -264,13 +264,13 @@ class MarkdownFormatter(BaseFormatter):
 
         # Recommendation
         if "recommendation" in data:
-            output.append(f"\n### 💡 Recommended Action\n")
-            output.append(f"> {data['recommendation']}")
+            output.append("\n### 💡 Recommended Action\n")
+            output.append("> {data['recommendation']}")
 
         # Technical details
         if "metadata" in data and "markov_component" in data["metadata"]:
-            output.append(f"\n### 🔬 Technical Analysis\n")
-            output.append(f"```\n{data['metadata']['markov_component']}\n```")
+            output.append("\n### 🔬 Technical Analysis\n")
+            output.append("```\n{data['metadata']['markov_component']}\n```")
 
         return "\n".join(output)
 
