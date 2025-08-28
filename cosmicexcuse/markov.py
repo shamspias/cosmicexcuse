@@ -4,7 +4,7 @@ Markov chain text generator module.
 
 import random
 from collections import defaultdict
-from typing import List, Dict, Optional
+from typing import Dict, List, Optional
 
 
 class MarkovChain:
@@ -25,7 +25,7 @@ class MarkovChain:
 
         # Default technical corpus
         self.default_corpus = """
-        distributed systems consensus algorithm byzantine fault tolerance 
+        distributed systems consensus algorithm byzantine fault tolerance
         eventual consistency CAP theorem race condition deadlock mutex
         garbage collection memory leak stack overflow heap corruption
         cache miss branch prediction pipeline stall context switch
